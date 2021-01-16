@@ -4,16 +4,17 @@ import * as crypto from 'crypto';
 
 const app = express();
 
-app.get('user/:id', (req, res) => {
+app.get('/user/:id', (req, res) => {
     const uid = req.params.id;
     admin.auth().getUser(uid).then((userRecord) => {
         // See the UserRecord reference doc for the contents of userRecord.
         console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
-        res.end(userRecord.toJSON());
+        res.json(userRecord.toJSON());
         
       }).catch((error) => {
           console.log("Error fetching user ", uid)
-       res.end(JSON.stringify({error: error}));
+          console.log(error)
+       res.json({error: error});
       });
   
   })
@@ -59,4 +60,36 @@ app.delete('user?:id', (req, res) => {
     // delete user
 })
 
+app.get('/users', (req, res) => {
+    const nextPageToken = req.query.nextPage as string | undefined;
+
+    // List batch of users, 1000 at a time.
+
+        admin
+        .auth()
+        .listUsers(1000, nextPageToken)
+        .then((listUsersResult) => {
+            res.json(listUsersResult);
+          })
+          .catch((error) => {
+            console.log('Error listing users:', error);
+            res.json(error)
+          });
+
+
+
+  
+    // .then((listUsersResult) => {
+    //     listUsersResult.users.forEach((userRecord) => {
+    //       console.log('user', userRecord.toJSON());
+    //     });
+    //     if (listUsersResult.pageToken) {
+    //       // List next batch of users.
+    //       listAllUsers(listUsersResult.pageToken);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log('Error listing users:', error);
+    //   });
+});
 export default app;
