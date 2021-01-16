@@ -1,0 +1,19 @@
+{
+  "name": "unicon-firebase-login",
+  "version": "1.0.0",
+  "description": "Cloud Function for synchronising Pretix ticket holders with Firebase Authentication",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniconBerlin/firebase-pretix.git"
+  },
+  "author": "Fabian Volkers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UniconBerlin/firebase-pretix/issues"
+  },
+  "homepage": "https://github.com/UniconBerlin/firebase-pretix#readme"
+}
