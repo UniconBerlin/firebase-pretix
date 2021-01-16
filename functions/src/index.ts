@@ -1,60 +1,17 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as express from 'express';
-import * as crypto from 'crypto';
+import * as pretix from './pretix';
+import api from './api';
 
 admin.initializeApp({
     credential: admin.credential.applicationDefault(),
     databaseURL: 'https://unicon-participants.firebaseio.com'
 })
 
-const app = express();
 
-app.get('/:id', (req, res) => {
-    const uid = req.params.id;
-    admin.auth().getUser(uid).then((userRecord) => {
-        // See the UserRecord reference doc for the contents of userRecord.
-        res.end(userRecord.toJSON());
-        console.log(`Successfully fetched user data: ${userRecord.toJSON()}`);
-      }).catch((error) => {
-       res.end(JSON.stringify({error: error}));
-      });
-  
-  })
+exports.api = functions.https.onRequest(api);
 
-app.post('/', (req, res) => {
-    const password = crypto.randomBytes(24).toString('base64').slice(0, 24);
-    const email = req.body.email;
-    const displayName = req.body.displayName;
-
-    if(email === undefined || displayName == undefined){
-        res.status(400).end("Invalid Request")
-    } else {
-
-    admin
-    .auth()
-    .createUser({
-      email: email,
-      emailVerified: false,
-      //phoneNumber: '+11234567890',
-      password: password,
-      displayName: displayName,
-      //photoURL: 'http://www.example.com/12345678/photo.png',
-      disabled: false,
-    })
-    .then((userRecord) => {
-      // See the UserRecord reference doc for the contents of userRecord.
-      console.log('Successfully created new user:', userRecord.uid);
-      res.status(201).end(JSON.stringify(userRecord));
-    })
-    .catch((error) => {
-      console.log('Error creating new user:', error);
-      res.status(500).end(JSON.stringify(error))
-    });
-}
-});
-
-exports.user = functions.https.onRequest(app);
+exports.pretix = pretix;
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
 //
