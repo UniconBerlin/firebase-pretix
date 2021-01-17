@@ -25,5 +25,6 @@ module.exports = {
   rules: {
     "quotes": ["error", "double"],
     "new-cap": ["error", {"newIsCapExceptionPattern": "^express\\.."}],
+    "sort-imports": "error",
   },
 };
