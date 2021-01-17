@@ -3,37 +3,57 @@
 import * as admin from "firebase-admin";
 import * as express from "express";
 import * as crypto from "crypto";
+import * as cors from "cors";
 
 const app = express();
-
+app.use(cors({
+  origin: ["https://unicon-2021.webflow.io", "https://unicon.berlin", "https://www.unicon.berlin"],
+}));
 // Verify User ID Token with Firebase
 app.use((req, res, next) => {
-  // idToken comes from the client app
-  const idToken = req.header("X-Firebase-ID-Token");
+  // idToken comes from the client app in Authorization Header
+  const idToken = req.header("Authorization")?.replace("Bearer", "").trim();
   if (idToken === undefined) {
     res.status(401).end("Unauthorized");
+  } else {
+    admin
+        .auth()
+        .verifyIdToken(idToken as string)
+        .then((decodedToken) => {
+          const uid = decodedToken.uid;
+          res.locals.uid = uid;
+          next();
+        })
+        .catch((error) => {
+          res.json(error);
+        });
   }
-  admin
-      .auth()
-      .verifyIdToken(idToken as string)
-      .then((decodedToken) => {
-        const uid = decodedToken.uid;
-        console.log(uid);
-        next();
-      // ...
-      })
-      .catch((error) => {
-        res.json(error);
-      // Handle error
-      });
 });
 
 // Check if Logged in user is admin
-// app.use((req, res, next) => {
+const authorizationMiddleware = (
+    req: express.Request,
+    res: express.Response,
+    next: Function) => {
+  const uid = res.locals.uid as string;
+  admin
+      .auth()
+      .getUser(uid)
+      .then((userRecord) => {
+        const email = userRecord.email as string;
+        if (email.includes("@unicon.berlin") && userRecord.emailVerified) {
+          next();
+        } else if (req.params.id === uid) {
+          next();
+        } else {
+          res.status(403).end("Forbidden");
+        }
+      }).catch((error) => {
+        res.json(error);
+      });
+};
 
-// })
-
-app.get("/user/:id", (req, res) => {
+app.get("/user/:id", authorizationMiddleware, (req, res) => {
   const uid = req.params.id;
   admin
       .auth()
@@ -50,7 +70,7 @@ app.get("/user/:id", (req, res) => {
       });
 });
 
-app.post("/user", (req, res) => {
+app.post("/user", authorizationMiddleware, (req, res) => {
   const password = crypto.randomBytes(24).toString("base64").slice(0, 24);
   const email = req.body.email;
   const displayName = req.body.displayName;
@@ -82,15 +102,15 @@ app.post("/user", (req, res) => {
   }
 });
 
-app.put("/user/:id", (req, res) => {
+app.put("/user/:id", authorizationMiddleware, (req, res) => {
   // update user
 });
 
-app.delete("user?:id", (req, res) => {
+app.delete("user/:id", authorizationMiddleware, (req, res) => {
   // delete user
 });
 
-app.get("/users", (req, res) => {
+app.get("/users", authorizationMiddleware, (req, res) => {
   const nextPageToken = req.query.nextPage as string | undefined;
 
   // List batch of users, 1000 at a time.
