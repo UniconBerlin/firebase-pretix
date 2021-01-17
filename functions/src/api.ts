@@ -5,7 +5,7 @@ import * as express from "express";
 import * as crypto from "crypto";
 import {parseRequestBody} from "./utils";
 
-
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
 // Verify User ID Token with Firebase

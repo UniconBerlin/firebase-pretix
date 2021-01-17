@@ -11,12 +11,22 @@ export function typedKeys<T>(o: T): (keyof T)[] {
   return Object.keys(o) as (keyof T)[];
 }
 
+interface User {
+    email?: string,
+    phoneNumber?: string,
+    emailVerified?: boolean,
+    password?: string,
+    displayName?: string,
+    photoURL?: string,
+    disabled?: boolean,
+}
+
 /**
  *
  * @param {express.Request} req express request object
- * @return {user} user object
+ * @return {User} user object
  */
-export function parseRequestBody(req: Request) {
+export function parseRequestBody(req: Request): User {
   const requestBody = {
     email: req.body.email,
     phoneNumber: req.body.phoneNumber,
@@ -27,15 +37,7 @@ export function parseRequestBody(req: Request) {
     disabled: req.body.disabled,
   };
 
-  const user: {
-        email?: string,
-        phoneNumber?: string,
-        emailVerified?: boolean,
-        password?: string,
-        displayName?: string,
-        photoURL?: string,
-        disabled?: boolean,
-    } = {};
+  const user: User = {};
 
   typedKeys(requestBody).forEach((key) => {
     if (requestBody[key] !== undefined) {
