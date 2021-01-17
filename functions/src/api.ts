@@ -4,11 +4,15 @@ import * as admin from "firebase-admin";
 import * as express from "express";
 import * as crypto from "crypto";
 import * as cors from "cors";
+import {parseRequestBody} from "./utils";
 
 const app = express();
 app.use(cors({
   origin: ["https://unicon-2021.webflow.io", "https://unicon.berlin", "https://www.unicon.berlin"],
 }));
+
+app.use(express.urlencoded({extended: true}));
+
 // Verify User ID Token with Firebase
 app.use((req, res, next) => {
   // idToken comes from the client app in Authorization Header
@@ -52,6 +56,18 @@ const authorizationMiddleware = (
         res.json(error);
       });
 };
+
+
+// user object
+//   {
+//     email: 'modifiedUser@example.com',
+//     phoneNumber: '+11234567890',
+//     emailVerified: true,
+//     password: 'newPassword',
+//     displayName: 'Jane Doe',
+//     photoURL: 'http://www.example.com/12345678/photo.png',
+//     disabled: true,
+//   }
 
 app.get("/user/:id", authorizationMiddleware, (req, res) => {
   const uid = req.params.id;
@@ -104,6 +120,17 @@ app.post("/user", authorizationMiddleware, (req, res) => {
 
 app.put("/user/:id", authorizationMiddleware, (req, res) => {
   // update user
+  const uid = req.params.id;
+  const user = parseRequestBody(req);
+
+  admin.auth().updateUser(uid, user)
+      .then((userRecord) => {
+        console.log(userRecord);
+        res.status(200).json(userRecord);
+      })
+      .catch((error) => {
+        res.json(error);
+      });
 });
 
 app.delete("user/:id", authorizationMiddleware, (req, res) => {
