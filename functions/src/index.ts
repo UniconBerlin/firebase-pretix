@@ -6,21 +6,18 @@ import * as cors from "cors";
 import api from "./api";
 import {RuntimeOptions} from "firebase-functions";
 import pretix from "./pretix";
-
+import {config} from "./config";
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
-  databaseURL: "https://unicon-participants.firebaseio.com",
+  databaseURL: config.FIREBASE.DATABASE_URL,
 });
 
-const runtimeOpts: RuntimeOptions = {
-  timeoutSeconds: 30,
-  memory: "128MB",
-};
+const runtimeOpts: RuntimeOptions = config.FIREBASE.RUNTIME_OPTS;
 
 const app = express();
 app.use(cors({
-  origin: ["https://unicon-2021.webflow.io", "https://unicon.berlin", "https://www.unicon.berlin"],
+  origin: config.ALLOWED_CORS_DOMAINS,
 }));
 
 app.use(express.urlencoded({extended: true}));
@@ -30,7 +27,7 @@ app.use("/api", api);
 
 exports.a = functions
     .runWith(runtimeOpts)
-    .region("europe-west1")
+    .region(config.FIREBASE.DEFAULT_REGION)
     .https.onRequest(app);
 
 // exports.pretix = pretix;
