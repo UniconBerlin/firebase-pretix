@@ -8,7 +8,7 @@ import {RuntimeOptions} from "firebase-functions";
 
 import api from "./api";
 import {config} from "./config";
-import pretix from "./pretix";
+import webhooks from "./webhooks";
 
 
 admin.initializeApp({
@@ -25,7 +25,7 @@ app.use(cors({
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-app.use("/pretix", pretix);
+app.use("/webhooks", webhooks);
 app.use("/api", api);
 
 exports.a = functions
