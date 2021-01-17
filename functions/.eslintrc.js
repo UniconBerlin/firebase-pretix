@@ -9,6 +9,8 @@ module.exports = {
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
     "google",
   ],
   parser: "@typescript-eslint/parser",
@@ -21,6 +23,7 @@ module.exports = {
   ],
   plugins: ["@typescript-eslint", "import"],
   rules: {
-    quotes: ["error", "double"],
+    "quotes": ["error", "double"],
+    "new-cap": ["error", {"newIsCapExceptionPattern": "^express\\.."}],
   },
 };
