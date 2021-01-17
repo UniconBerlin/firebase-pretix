@@ -1,8 +1,9 @@
 // REST API for Firebase user management
 
 import * as admin from "firebase-admin";
-import * as express from "express";
 import * as crypto from "crypto";
+import * as express from "express";
+
 import {parseRequestBody} from "./utils";
 
 // eslint-disable-next-line new-cap

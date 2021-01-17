@@ -1,12 +1,15 @@
-import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import * as express from "express";
+
 import * as cors from "cors";
+import * as express from "express";
+import * as functions from "firebase-functions";
+
+import {RuntimeOptions} from "firebase-functions";
 
 import api from "./api";
-import {RuntimeOptions} from "firebase-functions";
-import pretix from "./pretix";
 import {config} from "./config";
+import pretix from "./pretix";
+
 
 admin.initializeApp({
   credential: admin.credential.applicationDefault(),
