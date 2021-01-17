@@ -3,18 +3,13 @@
 import * as admin from "firebase-admin";
 import * as express from "express";
 import * as crypto from "crypto";
-import * as cors from "cors";
 import {parseRequestBody} from "./utils";
 
-const app = express();
-app.use(cors({
-  origin: ["https://unicon-2021.webflow.io", "https://unicon.berlin", "https://www.unicon.berlin"],
-}));
 
-app.use(express.urlencoded({extended: true}));
+const router = express.Router();
 
 // Verify User ID Token with Firebase
-app.use((req, res, next) => {
+router.use((req, res, next) => {
   // idToken comes from the client app in Authorization Header
   const idToken = req.header("Authorization")?.replace("Bearer", "").trim();
   if (idToken === undefined) {
@@ -38,7 +33,7 @@ app.use((req, res, next) => {
 const authorizationMiddleware = (
     req: express.Request,
     res: express.Response,
-    next: Function) => {
+    next: express.NextFunction) => {
   const uid = res.locals.uid as string;
   admin
       .auth()
@@ -69,7 +64,7 @@ const authorizationMiddleware = (
 //     disabled: true,
 //   }
 
-app.get("/user/:id", authorizationMiddleware, (req, res) => {
+router.get("/user/:id", authorizationMiddleware, (req, res) => {
   const uid = req.params.id;
   admin
       .auth()
@@ -86,7 +81,7 @@ app.get("/user/:id", authorizationMiddleware, (req, res) => {
       });
 });
 
-app.post("/user", authorizationMiddleware, (req, res) => {
+router.post("/user", authorizationMiddleware, (req, res) => {
   const password = crypto.randomBytes(24).toString("base64").slice(0, 24);
   const email = req.body.email;
   const displayName = req.body.displayName;
@@ -118,7 +113,7 @@ app.post("/user", authorizationMiddleware, (req, res) => {
   }
 });
 
-app.put("/user/:id", authorizationMiddleware, (req, res) => {
+router.put("/user/:id", authorizationMiddleware, (req, res) => {
   // update user
   const uid = req.params.id;
   const user = parseRequestBody(req);
@@ -133,11 +128,13 @@ app.put("/user/:id", authorizationMiddleware, (req, res) => {
       });
 });
 
-app.delete("user/:id", authorizationMiddleware, (req, res) => {
+router.delete("user/:id", authorizationMiddleware, (req, res) => {
   // delete user
+  console.log(req);
+  res.end("Delete User");
 });
 
-app.get("/users", authorizationMiddleware, (req, res) => {
+router.get("/users", authorizationMiddleware, (req, res) => {
   const nextPageToken = req.query.nextPage as string | undefined;
 
   // List batch of users, 1000 at a time.
@@ -167,4 +164,4 @@ app.get("/users", authorizationMiddleware, (req, res) => {
   //   });
 });
 
-export default app;
+export default router;
