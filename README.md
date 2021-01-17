@@ -1,6 +1,6 @@
 # Firebase <-> Pretix Integration
 
-The firebase functions have two main concerns:
+Single Firebase function running an express app. The app has two main concerns:
 1. A REST API, powered by express.js
 2. Webhook endpoints for pretix events.
 
