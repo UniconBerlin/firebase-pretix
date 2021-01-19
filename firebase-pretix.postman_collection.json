@@ -9,7 +9,7 @@
 			"name": "api",
 			"item": [
 				{
-					"name": "user",
+					"name": "users/:uid",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -31,13 +31,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{API_URL}}/api/user/{{user_id}}",
+							"raw": "{{API_URL}}/api/users/{{user_id}}",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"api",
-								"user",
+								"users",
 								"{{user_id}}"
 							]
 						},
@@ -46,7 +46,7 @@
 					"response": []
 				},
 				{
-					"name": "user",
+					"name": "users/:uid",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -59,7 +59,7 @@
 						}
 					],
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [
 							{
 								"key": "Authorization",
@@ -78,13 +78,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{API_URL}}/api/user/{{user_id}}",
+							"raw": "{{API_URL}}/api/users/{{user_id}}",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"api",
-								"user",
+								"users",
 								"{{user_id}}"
 							]
 						},
@@ -93,7 +93,7 @@
 					"response": []
 				},
 				{
-					"name": "user",
+					"name": "users",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -119,13 +119,13 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "{{API_URL}}/api/user/",
+							"raw": "{{API_URL}}/api/users/",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"api",
-								"user",
+								"users",
 								""
 							]
 						},
@@ -134,7 +134,7 @@
 					"response": []
 				},
 				{
-					"name": "user",
+					"name": "users/:uid",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -156,17 +156,65 @@
 							}
 						],
 						"url": {
-							"raw": "{{API_URL}}/api/user/{{user_id}}",
+							"raw": "{{API_URL}}/api/users/{{user_id}}",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
 								"api",
-								"user",
+								"users",
 								"{{user_id}}"
 							]
 						},
 						"description": "Get an existing user record"
+					},
+					"response": []
+				},
+				{
+					"name": "users/:uid/password-reset",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{id_token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "displayName",
+									"value": "Test User",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{API_URL}}/api/users/{{user_id}}/password-reset",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"{{user_id}}",
+								"password-reset"
+							]
+						},
+						"description": "Update a user record"
 					},
 					"response": []
 				},
@@ -298,7 +346,7 @@
 			"name": "pretix",
 			"item": [
 				{
-					"name": "pretix-newOrder",
+					"name": "new-order",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -314,12 +362,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{API_URL}}/pretix-newOrder",
+							"raw": "{{API_URL}}/pretix/new-order",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
-								"pretix-newOrder"
+								"pretix",
+								"new-order"
 							]
 						},
 						"description": "Webhook endpoint for Pretix on paid orders"
@@ -327,7 +376,7 @@
 					"response": []
 				},
 				{
-					"name": "pretix-deletedOrder",
+					"name": "deleted-order",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -343,12 +392,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{API_URL}}/pretix-deletedOrder",
+							"raw": "{{API_URL}}/pretix/deleted-order",
 							"host": [
 								"{{API_URL}}"
 							],
 							"path": [
-								"pretix-deletedOrder"
+								"pretix",
+								"deleted-order"
 							]
 						},
 						"description": "Webhook endpoint for Pretix on paid orders"
@@ -385,7 +435,7 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"const env = pm.collectionVariables.get('ENVIRONMENT');",
+					"const env = pm.environment.get('ENVIRONMENT');",
 					"if(env === 'dev' || env === 'development'){",
 					"    const api_url = pm.collectionVariables.get('DEV_URL');",
 					"    pm.collectionVariables.set('API_URL', api_url)",
@@ -406,10 +456,6 @@
 		}
 	],
 	"variable": [
-		{
-			"key": "ENVIRONMENT",
-			"value": "dev"
-		},
 		{
 			"key": "PROD_URL",
 			"value": "<firebase_prod_url>"

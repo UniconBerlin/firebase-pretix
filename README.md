@@ -43,4 +43,6 @@ For local development of the functions, it's recommended to use [Postman](https:
 - email
 - password
 
+For easier access to fequently changed variables, import the postmant environment.
+
 By changing the collection variable ENVIRONMENT from dev to prod, you can test the production endpoint.
