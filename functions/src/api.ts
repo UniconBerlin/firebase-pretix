@@ -3,7 +3,7 @@
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 import * as express from "express";
-
+import {config} from "./config";
 import {parseRequestBody} from "./utils";
 
 // eslint-disable-next-line new-cap
@@ -65,7 +65,7 @@ const authorizationMiddleware = (
 //     disabled: true,
 //   }
 
-router.get("/user/:id", authorizationMiddleware, (req, res) => {
+router.get("/users/:id", authorizationMiddleware, (req, res) => {
   const uid = req.params.id;
   admin
       .auth()
@@ -82,7 +82,7 @@ router.get("/user/:id", authorizationMiddleware, (req, res) => {
       });
 });
 
-router.post("/user", authorizationMiddleware, (req, res) => {
+router.post("/users", authorizationMiddleware, (req, res) => {
   const password = crypto.randomBytes(24).toString("base64").slice(0, 24);
   const email = req.body.email;
   const displayName = req.body.displayName;
@@ -114,7 +114,7 @@ router.post("/user", authorizationMiddleware, (req, res) => {
   }
 });
 
-router.put("/user/:id", authorizationMiddleware, (req, res) => {
+router.patch("/users/:id", authorizationMiddleware, (req, res) => {
   // update user
   const uid = req.params.id;
   const user = parseRequestBody(req);
@@ -129,7 +129,41 @@ router.put("/user/:id", authorizationMiddleware, (req, res) => {
       });
 });
 
-router.delete("user/:id", authorizationMiddleware, (req, res) => {
+router.post(
+    "/users/:id/password-reset",
+    authorizationMiddleware,
+    (req, res) => {
+      const uid = req.params.id;
+      const actionCodeSettings = {
+        // URL you want to redirect back to. The domain (www.example.com) for
+        // this URL must be whitelisted in the Firebase Console.
+        url: `${config.ALLOWED_CORS_DOMAINS[0]}/login`,
+      };
+      admin.auth().getUser(uid).then((userRecord) => {
+        if (userRecord.email !== undefined) {
+          admin.auth()
+              .generatePasswordResetLink(userRecord.email, actionCodeSettings)
+              .then((resetLink) => {
+                admin.firestore().collection("mail").add({
+                  to: userRecord.email,
+                  message: {
+                    subject: "Password Reset",
+                    html: resetLink,
+                  },
+                }).then((ref) => {
+                  console.log(ref);
+                  res.end("Added passwort reset mail to queue");
+                });
+              });
+        } else {
+          res.status(404).end("User email not found");
+        }
+      }).catch((error) => {
+        res.json(error);
+      });
+    });
+
+router.delete("users/:id", authorizationMiddleware, (req, res) => {
   // delete user
   console.log(req);
   res.end("Delete User");
