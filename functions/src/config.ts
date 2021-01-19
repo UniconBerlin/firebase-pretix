@@ -1,6 +1,7 @@
 import type {RuntimeOptions} from "firebase-functions";
 
 interface Config {
+    ENVIRONMENT: "production" | "development"
     FIREBASE : {
         RUNTIME_OPTS: RuntimeOptions
         DEFAULT_REGION: string
@@ -10,12 +11,13 @@ interface Config {
 }
 
 export const config: Config = {
+  ENVIRONMENT: "development",
   FIREBASE: {
     RUNTIME_OPTS: {
       timeoutSeconds: 30,
       memory: "128MB",
     },
-    DEFAULT_REGION: "europe-west3",
+    DEFAULT_REGION: "europe-west1",
     DATABASE_URL: "https://unicon-participants.firebaseio.com",
   },
   ALLOWED_CORS_DOMAINS: [
